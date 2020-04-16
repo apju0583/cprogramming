@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int** create_matrix(int** matrix, int row, int col);
+int free_matrix(int** matrix, int row, int col);
+void print_matrix(int** matrix, int row, int col);
+int fill_data(int** matrix, int row, int col);
+int transpose_matrix(int** matrix, int** matrix_t, int row, int col);
+int addition_matrix(int** matrix_a, int** matrix_b, int** matrix_sum, int row, int col);
+int subtraction_matrix(int** matrix_a, int** matrix_b, int** matrix_sub, int row, int col);
+int multiply_matrix(int** matrix_a, int** matrix_t, int** matrix_axt, int row, int col);
+
+int **matrix_a;
+int **matrix_b;
+int **matrix_t;
+int **matrix_sum;
+int **matrix_sub;
+int **matrix_axt;
+
+int main()
+{
+	printf("소프트웨어 2019038005 김강민\n");
+
+	int row, col;
+
+	printf("행렬의 행과 열의 값을 입력하세요 : ");
+	scanf("%d %d", &row, &col);
+
+	srand(time(NULL)); //랜덤으로 시간 초기화
+
+	/* 각 행렬 선언 후 동적할당 */
+	matrix_a = create_matrix(matrix_a, row, col);
+	matrix_b = create_matrix(matrix_b, row, col);
+	matrix_t = create_matrix(matrix_t, row, col);
+	matrix_sum = create_matrix(matrix_sum, row, col);
+	matrix_sub = create_matrix(matrix_sub, row, col);
+	matrix_axt = create_matrix(matrix_axt, row, col);
+
+	/* 행렬에 랜덤값 대입 */
+	for (int i = 0; i < row; i++)
+		for(int j=0;j<col;j++)
+			matrix_a[i][j] = fill_data(matrix_a, i, j);
+
+	for (int k = 0; k < row; k++)
+		for (int l = 0; l < col; l++)
+			matrix_b[k][l] = fill_data(matrix_b, k, l);
+
+	/* 행렬의 합 */
+	for (int x = 0; x < row; x++)
+		for (int y = 0; y < col; y++)
+			matrix_sum[x][y] = addition_matrix(matrix_a, matrix_b, matrix_sum, x, y);
+
+	/*행렬의 차 */
+	for (int x = 0; x < row; x++)
+		for (int y = 0; y < col; y++)
+			matrix_sub[x][y] = subtraction_matrix(matrix_a, matrix_b, matrix_sub, x, y);
+
+
+	/* 전치행렬 계산 */
+	for (int i = 0; i < row; i++)
+		for (int j = 0; j < col; j++)
+			matrix_t[i][j] = transpose_matrix(matrix_a, matrix_t, i, j);
+
+	/* 행렬의 곱 계산 */
+	for (int i = 0; i < row; i++)
+		for (int j = 0; j < col; j++)
+			matrix_axt[i][j] = multiply_matrix(matrix_a, matrix_t, matrix_axt, i, j);
+
+	print_matrix(matrix_a, row, col); //A 행렬 출력
+	print_matrix(matrix_b, row, col); //B 행렬 출력
+	print_matrix(matrix_sum, row, col); //A+B 값 출력
+	print_matrix(matrix_sub, row, col); //A-B 값 출력
+	print_matrix(matrix_axt, row, col); //A X T 값 출력
+
+
+	/* 동적 메로리 할당 해제 */
+	free_matrix(matrix_a, row, col);
+	free_matrix(matrix_b, row, col);
+	free_matrix(matrix_sum, row, col);
+	free_matrix(matrix_sub, row, col);
+	free_matrix(matrix_axt, row, col);
+
+	return 0;
+}
+
+int** create_matrix(int **matrix, int row, int col)
+{
+	if(row <= 0 || col <= 0)
+	{
+		printf("행과 열의 값이 잘못되었습니다");
+		return NULL; //NULL값을 반환해 오류 표시
+	}
+
+	else
+	{
+		matrix = (int **)malloc(row * sizeof(int)); //동적 메모리 할당
+
+		for (int i=0;i<col;i++)
+			matrix[i] = (int*)malloc(col * sizeof(int)); //동적 메모리 할당
+	}
+
+	return (int**)matrix;
+}
+
+int free_matrix(int** matrix, int row, int col)
+{
+	for (int i=0;i<row;i++)
+		free(matrix[i]); //동적 메모리 할당 해제
+
+	free(matrix); //동적 메모리 할당 해제
+
+	return 0;
+}
+
+void print_matrix(int** matrix, int row, int col)
+{
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+			printf("%3d", matrix[i][j]); //행렬 출력
+
+		printf("\n");
+	}
+}
+
+int fill_data(int** matrix, int row, int col)
+{
+	matrix[row][col] = rand() % 20; //0 ~ 19의 값을 대입
+
+	return matrix[row][col];
+}
+
+int transpose_matrix(int** matrix, int** matrix_t, int row, int col)
+{
+	matrix_t[col][row] = matrix_a[row][col]; //행과 열을 바꾸어 전치행렬로 나타냄
+
+	return matrix_t[row][col];
+}
+
+int addition_matrix(int** matrix_a, int** matrix_b, int** matrix_sum, int row, int col)
+{
+	matrix_sum[row][col] = (matrix_a[row][col] + matrix_b[row][col]); //행렬의 합
+
+	return matrix_sum[row][col];
+}
+
+int subtraction_matrix(int** matrix_a, int** matrix_b, int** matrix_sub, int row, int col)
+{
+	matrix_sub[row][col] =  matrix_a[row][col] - matrix_b[row][col]; //행렬의 차
+
+	return matrix_sub[row][col];
+}
+
+int multiply_matrix(int** matrix_a, int** matrix_t, int** matrix_axt, int row, int col)
+{
+	int sum = 0;
+
+	sum += matrix_a[row][col] * matrix_t[col][row]; //행렬의 곱을 sum 변수에 대입
+	matrix_axt[row][col] = sum; //sum 변수의 값을 각 행렬에 대입
+
+	return matrix_axt[row][col];
+}
