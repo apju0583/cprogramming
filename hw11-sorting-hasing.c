@@ -346,7 +346,7 @@ int hashing(int *a, int **ht)
 
 			while(hashtable[index] != -1) //해시테이블의 값이 -1이 아니면 반복
 			{
-				index = (++index) % MAX_HASH_TABLE_SIZE; //
+				index = (++index) % MAX_HASH_TABLE_SIZE; //충돌을 대비해 인덱스를 하나 늘려줌
 				/*
 				printf("index = %d\n", index);
 				*/
